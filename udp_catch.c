@@ -11,7 +11,8 @@
 
 int main(int argc, char** argv)
 {  
-    float delta;
+    int lostTime = 0;
+    float delta, totalTime = 0.0f;
     struct timeval tv1, tv2;
     int socket_descriptor;  
     struct sockaddr_in sin;  
@@ -35,7 +36,12 @@ int main(int argc, char** argv)
         recvfrom(socket_descriptor, &servAddr, sizeof(servAddr),0, NULL, NULL);  
         gettimeofday(&tv2, NULL);
         delta = (double)(((tv2.tv_sec - tv1.tv_sec)*10E6 + tv2.tv_usec - tv1.tv_usec)) / 10E6;
-        printf("Response from [%.2fS][%s]\n", delta, inet_ntoa(servAddr));  
+        printf("Response from [%.2fS][%s][%d / %f]\n", delta, inet_ntoa(servAddr), lostTime, totalTime);  
+        if (delta > 4.0f) {
+            lostTime++;
+            printf("Maybe lost a UDP packet...\n");
+        }
+        totalTime += delta;
     }  
 
     close(socket_descriptor);  
